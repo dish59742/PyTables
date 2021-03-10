@@ -19,6 +19,7 @@ jobs:
     strategy:
       matrix:
         # os: [ubuntu-latest, windows-latest, macos-latest]
+        arch: [auto, aarch64]
         os: [ubuntu-latest]
 
     steps:
@@ -28,6 +29,9 @@ jobs:
         name: Install Python
         with:
           python-version: '3.7'
+          
+      - uses: docker/setup-qemu-action@v1
+        name: Set up QEMU
 
       - name: Install cibuildwheel
         run: |
@@ -37,6 +41,7 @@ jobs:
         run: |
           python -m cibuildwheel --output-dir wheelhouse
         env:
+          CIBW_ARCHS_LINUX: ${{matrix.arch}}
           CIBW_BUILD: "cp36-* cp37-* cp38-* cp39-*"
           CIBW_BEFORE_ALL_LINUX: "yum install -y epel-release && yum install -y hdf5-devel zlib-devel bzip2-devel lzo-devel"
           CIBW_BEFORE_BUILD: "pip install numpy numexpr cython>=0.29.21"
